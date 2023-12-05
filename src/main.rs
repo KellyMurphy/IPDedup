@@ -12,10 +12,12 @@ use std::{
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let argc: usize = args.len();
-    if argc < 1 {
+    let argc: usize = args.iter().count();
+    
+    if argc == 1 {
         println!("Error: Invalid number of arguments: ");
         println!("Useage: {} <input folder> <output file>", args[0]);
+        println!("   Example: {} \\var\\lists\\mylists combined_list.txt", args[0]);
         exit(1);
     }
     let input_folder = &args[1];
@@ -27,15 +29,20 @@ fn main() {
     for path in paths {
         let pth = path.unwrap().path();
         let lines = lines_from_file(&pth);
+        let lines_count = lines.iter().count();
         let ip_range: IpRange<Ipv4Net> = lines.iter().map(|s| s.parse().unwrap()).collect();
 
-        println!(
-            "Name: {}, Count: {}",
+        print!(
+            "Name: {}, File Count: {}, IPList count {}",
             pth.display(),
-            ip_range.into_iter().count()
+            ip_range.into_iter().count(),
+            lines_count
         );
+        let pre_count=ip_range_all.iter().count();
         ip_range_all = ip_range_all.merge(&ip_range);
-        println!("Merge Complete!");
+        let added_count = ip_range_all.iter().count() - pre_count;
+
+        println!(", Merge Complete, added {}", added_count);
     }
     println!(
         "IP's count of all lists: {}",
